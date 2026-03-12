@@ -534,8 +534,7 @@ unsigned long calculateSleepTime(int lhour, int lminute ) { ;
 	Serial.print("Hour for sleep : ") ;
 	Serial.println(lhour);
 	if ( lhour < 7 )   return ( 7 - lhour) * 3600 ;
-	if ( lhour >= 20 ) return 7200 ;
-	if ( lhour >= 17 ) return 3600 ;
+	if ( lhour >= 17 ) return 3600 ; // Max sleep in 32bits time 10^6
 
 	// Sync on halv hour
 	lminute %= 30 ;
