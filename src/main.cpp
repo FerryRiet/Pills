@@ -415,27 +415,37 @@ int getBeaufort(double kmh) ;
 void createWindData(float  speed, int direction) ;
 
 const unsigned char *selectWeatherIcon(int weather_code) {
-	if (weather_code == 0) {
-		return epd_bitmap_clear_sky;
-	} else if (weather_code == 1) {
-		return epd_bitmap_few_clouds;
-	} else if (weather_code == 2) {
-		return epd_bitmap_scattered_clouds;
-	} else if (weather_code == 3) {
-		return epd_bitmap_broken_clouds;
-	} else if (weather_code >= 40 && weather_code < 50) {
-		_READ_WRITE_RETURN_TYPE epd_bitmap_mist;
-	} else if (weather_code >= 50 && weather_code <= 60) {
-		return epd_bitmap_shower_rain;
-	} else if (weather_code > 60 && weather_code <= 70) {
-		return epd_bitmap_rain;
-	} else if (weather_code >= 90 && weather_code <= 100) {
-		return epd_bitmap_thunderstorm;
-	} else if (weather_code >= 80 && weather_code < 90) {
-		return epd_bitmap_snow;
-	} 
-
-	return epd_bitmap_clear_sky;
+	// WMO Weather Interpretation Codes (Open-Meteo API)
+	// https://open-meteo.com/en/docs
+	switch (weather_code) {
+		case 0:                          // Clear sky
+			return epd_bitmap_clear_sky;
+		case 1:                          // Mainly clear
+			return epd_bitmap_few_clouds;
+		case 2:                          // Partly cloudy
+			return epd_bitmap_scattered_clouds;
+		case 3:                          // Overcast
+			return epd_bitmap_broken_clouds;
+		case 45:                         // Fog
+		case 48:                         // Depositing rime fog
+			return epd_bitmap_mist;
+		case 51: case 53: case 55:       // Drizzle (light, moderate, dense)
+		case 56: case 58:                // Freezing drizzle
+			return epd_bitmap_shower_rain;
+		case 61: case 63: case 65:       // Rain (slight, moderate, heavy)
+		case 66: case 67:                // Freezing rain
+		case 80: case 81: case 82:       // Rain showers
+			return epd_bitmap_rain;
+		case 71: case 73: case 75:       // Snow fall (slight, moderate, heavy)
+		case 77:                         // Snow grains
+		case 85: case 86:                // Snow showers
+			return epd_bitmap_snow;
+		case 95:                         // Thunderstorm
+		case 96: case 99:                // Thunderstorm with hail
+			return epd_bitmap_thunderstorm;
+		default:
+			return epd_bitmap_clear_sky;
+	}
 }
 
 void UpdateWeatherDisplay(String& dateStr, String& timeStr) {
