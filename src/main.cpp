@@ -51,7 +51,6 @@ RTC_DATA_ATTR float savedHumid = 0.0;
 RTC_DATA_ATTR bool newDay = false;
 RTC_DATA_ATTR int toDay =  0 ;
 
-
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  // 2 ^ GPIO_NUMBER in hex
 #define WAKEUP_GPIO_0 GPIO_NUM_0                   // Only RTC IO are allowed
 #define WAKEUP_GPIO_1 GPIO_NUM_1                   // Only RTC IO are allowed - ESP32 Pin example
@@ -67,7 +66,7 @@ int getBeaufort(double kmh) ;
 void createWindData(float  speed, int direction) ;
 
 void UpdateWeatherDisplay(String& dateStr, String& timeStr) {
-	//display.clearScreen();
+//display.clearScreen();
 	display.fillScreen(GxEPD_WHITE);
 	display.setTextColor(GxEPD_BLACK);
 	display.setTextSize(1);
@@ -180,9 +179,6 @@ void setup() {
 		uint64_t wakeup_pin_mask = esp_sleep_get_ext1_wakeup_status();
 		int pin = (wakeup_pin_mask & WAKEUP_GPIO_1_BITMASK) >> 1;  // Convert bitmask to pin number
 		
-		Serial.print("Wakeup GPIO: ");
-		Serial.println(pin);
-
 		// Button 1 (GPIO 1) = new day, Button 0 (GPIO 0) = debug mode
 		newDay = (pin == NEW_DAY_BUTTON) ? true : false;
 	}
@@ -209,8 +205,8 @@ void setup() {
 // 
 #define SLEEPAFTERFAIL 300  
 void doBail() {
-	esp_sleep_enable_timer_wakeup(SLEEPAFTERFAIL * 1000000) ;
-	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL )) ;
+	esp_sleep_enable_timer_wakeup(SLEEPAFTERFAIL * uS_TO_S_FACTOR) ;
+	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL)) ;
 	esp_deep_sleep_start();
 }
 
@@ -249,8 +245,6 @@ void loop() {
 
 		if (httpCode > 0) {
 			String payload = http.getString();
-			Serial.println("Weather JSON:");
-			Serial.println(payload);
 
 		    JsonDocument doc;
 			DeserializationError error = deserializeJson(doc, payload);
@@ -273,27 +267,24 @@ void loop() {
 			precipitation = "!" + httpCode;
 		}
 		http.end();
-		//Serial.println("Temp: " + temperature);
-		//Serial.println("Humidity: " + precipitation);
 	}
 	
 	if (WiFi.status() != WL_CONNECTED) {
 		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
 	}
-	WiFi.disconnect(true, true); // Save power?
+	else WiFi.disconnect(true, true); // Save power?
 	
 	if (newDay) {
 		UpdatePillsDisplay(formatted_date, formatted_time) ;
 	} else {
 		sleepTime = calculateSleepTime(lhour,lminute) ; 
-		esp_sleep_enable_timer_wakeup(sleepTime * 1000000);
+		esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
 		Serial.println("Sleeping for :" + String(sleepTime) ) ;
 		UpdateWeatherDisplay(formatted_date, formatted_time);
 	}
-	//Serial.println("E-Paper updated! Going to deep sleep mode.\n");
-
 
 	display.hibernate() ;
+
 	if ( Serial.isPlugged() ) {  // Debug if connected. 
 		newDay = !newDay ;
 		delay(5000) ;
