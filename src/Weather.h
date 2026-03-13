@@ -12,6 +12,11 @@ extern const unsigned char epd_bitmap_shower_rain[];
 extern const unsigned char epd_bitmap_snow[];
 extern const unsigned char epd_bitmap_thunderstorm[];
 
+extern const unsigned char epd_bitmap_temperature[] ;
+extern const unsigned char wind_bitmap[];
+extern const unsigned char epd_bitmap_warning[]; 
+extern const unsigned char epd_bitmap_humidity[];
+
 // Function to select weather icon based on weather code
 const unsigned char *selectWeatherIcon(int weather_code);
 
