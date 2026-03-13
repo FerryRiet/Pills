@@ -62,6 +62,8 @@ RTC_DATA_ATTR int toDay = 0;
 #define WAKEUP_GPIO_1_BITMASK (1ULL << WAKEUP_GPIO_1)
 
 time_t getNtpTime();
+void doBail(int timeOut) ;
+
 int getBeaufort(double kmh);
 void createWindData(float speed, int direction);
 
@@ -131,30 +133,30 @@ void UpdatePillsDisplay(String &dateStr, String &timeStr)
 void UpdateVersionDisplay()
 {
 	display.fillScreen(GxEPD_WHITE);
-	display.setFont(&FreeSans12pt7b);
+	display.setFont(&FreeSans9pt7b);
 	display.setTextColor(GxEPD_BLACK);
 	display.setTextSize(1);
 
 	// Title
-	display.setCursor(10, 20);
+	display.setCursor(10, 15);
 	display.print("Weather Station v1.0");
 
 	// Build info
-	display.setCursor(10, 40);
-	display.print("ESP32-C3 + E-Paper");
+	display.setCursor(10, 32);
+	display.print("ESP32-C6 + E-Paper");
 
 	// Features
-	display.setCursor(10, 60);
+	display.setCursor(10, 49);
 	display.print("Features:");
-	display.setCursor(20, 80);
+	display.setCursor(20, 67);
 	display.print("- Weather Display");
-	display.setCursor(20, 100);
+	display.setCursor(20, 83);
 	display.print("- Pill Reminder");
-	display.setCursor(20, 120);
+	display.setCursor(20, 100);
 	display.print("- Deep Sleep");
 
 	// API info
-	display.setCursor(10, 140);
+	display.setCursor(10, 117);
 	display.print("Open-Meteo API");
 
 	display.display();
@@ -187,6 +189,10 @@ void setup()
 
 		// Button 1 (GPIO 1) = new day, Button 0 (GPIO 0) = debug mode
 		newDay = (pin == NEW_DAY_BUTTON) ? true : false;
+		if ( newDay) {
+			UpdateVersionDisplay() ;
+			doBail(10) ;
+		}
 	}
 
 	WiFi.begin(ssid, password);
@@ -212,9 +218,9 @@ void setup()
 
 //
 #define SLEEPAFTERFAIL 300
-void doBail()
+void doBail(int timeOut )
 {
-	esp_sleep_enable_timer_wakeup(SLEEPAFTERFAIL * uS_TO_S_FACTOR);
+	esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
 	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
 	esp_deep_sleep_start();
 }
@@ -239,7 +245,7 @@ void loop()
 
 		lyear = year(dTime);
 		if (lyear == 1970)
-			doBail();
+			doBail(300);
 
 		lhour = hour(dTime);
 		lminute = minute(dTime);
