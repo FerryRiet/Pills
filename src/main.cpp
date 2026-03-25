@@ -32,6 +32,10 @@ String formatted_time = "00:00:00";
 // WiFi Credentials
 const char *ssid = "Superwome";
 const char *password = "0206697723";
+const char *IP = "192.168.2.49";
+const char *NM = "192.168.2.0";
+const char *GW = "192.168.2.254";
+
 
 // OpenWeatherMap API Info
 
@@ -50,6 +54,7 @@ RTC_DATA_ATTR float savedTemp = 0.0;
 RTC_DATA_ATTR float savedHumid = 0.0;
 RTC_DATA_ATTR bool newDay = false;
 RTC_DATA_ATTR int toDay = 0;
+
 
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO) // 2 ^ GPIO_NUMBER in hex
 #define WAKEUP_GPIO_0 GPIO_NUM_0				// Only RTC IO are allowed
@@ -195,11 +200,16 @@ void setup()
 		}
 	}
 
+/* BUG */	
+//	WiFi.config(IPAddress(192,168,2,49),IPAddress(192,168,2,254),IPAddress(192,168,2,0),IPAddress(8,8,8,8)) ; 
+	WiFi.mode(WIFI_STA) ;
+	WiFi.setHostname("Pills") ;
 	WiFi.begin(ssid, password);
+/* end BUG*/
 
 	while (WiFi.status() != WL_CONNECTED)
 	{
-		delay(100); // Connect in 20 msec
+		delay(20); // Connect in 20 msec
 		wifitimeout++;
 		if (wifitimeout > 200)
 		{
@@ -207,12 +217,13 @@ void setup()
 			break;
 		}
 	}
+
 	esp_sleep_enable_ext1_wakeup_io(BUTTON_PIN_BITMASK(WAKEUP_GPIO_0), ESP_EXT1_WAKEUP_ANY_HIGH);
 	esp_sleep_enable_ext1_wakeup_io(BUTTON_PIN_BITMASK(WAKEUP_GPIO_1), ESP_EXT1_WAKEUP_ANY_HIGH);
 
-	gpio_pulldown_en(WAKEUP_GPIO_0); // LP_GPIO0 is tie to GND in order to wake up in HIGH
+	gpio_pulldown_en(WAKEUP_GPIO_0); // LP_GPIO0 is tied to GND in order to wake up in HIGH
 	gpio_pullup_dis(WAKEUP_GPIO_0);	 // Disable PULL_UP in order to allow it to wakeup on HIGH
-	gpio_pulldown_en(WAKEUP_GPIO_1); // LP_GPIO0 is tie to GND in order to wake up in HIGH
+	gpio_pulldown_en(WAKEUP_GPIO_1); // LP_GPIO0 is tied to GND in order to wake up in HIGH
 	gpio_pullup_dis(WAKEUP_GPIO_1);	 // Disable PULL_UP in order to allow it to wakeup on HIGH
 }
 
@@ -222,7 +233,9 @@ void doBail(int timeOut )
 {
 	esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
 	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
-	esp_deep_sleep_start();
+	delay(10000) ;
+	ESP.restart() ;
+	//esp_deep_sleep_start();
 }
 
 void loop()
