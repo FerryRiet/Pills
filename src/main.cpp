@@ -172,7 +172,7 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 	if (lhour < 7)
 		return (7 - lhour) * 3600;
 	if (lhour >= 17)
-		return 3600; // Max sleep in 32bits time 10^6
+		return (59 - lminute) * 60 + 60 - lsec; // Max sleep in 32bits time 10^6
 
 	// Sync on halv hour
 	lminute %= 30;
@@ -234,8 +234,8 @@ void doBail(int timeOut )
 	esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
 	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
 	delay(10000) ;
-	ESP.restart() ;
-	//esp_deep_sleep_start();
+	//ESP.restart() ;
+	esp_deep_sleep_start();
 }
 
 void loop()
@@ -334,7 +334,7 @@ void loop()
 	if (Serial.isPlugged())
 	{ // Debug if connected.
 		newDay = !newDay;
-		delay(5000);
+		delay(10000);
 		ESP.restart();
 	}
 	else
