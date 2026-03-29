@@ -32,6 +32,7 @@ String formatted_time = "00:00:00";
 // WiFi Credentials
 const char *ssid = "Superwome";
 const char *password = "0206697723";
+
 const char *IP = "192.168.2.49";
 const char *NM = "192.168.2.0";
 const char *GW = "192.168.2.254";
