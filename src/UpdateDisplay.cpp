@@ -1,8 +1,6 @@
-// UpdateWeather.cpp - Weather display update function
+// UpdateDisplay.cpp - Functions for screen update.
 
 #include "Weather.h"
-
-
 
 void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 {
@@ -35,9 +33,9 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.drawBitmap(18, 24, icon, 64, 64, 0);
 
 	// Wind info
-	display.drawXBitmap(4,91,wind_new,32,27,GxEPD_RED) ;
+	display.drawXBitmap(4,93,wind_new,32,27,GxEPD_RED) ;
 	display.setFont(&FreeSans12pt7b);
-	display.setCursor(37, 112);
+	display.setCursor(37, 114);
 	display.print(wind);
 
 	// Date and time
