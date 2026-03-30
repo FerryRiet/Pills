@@ -9,10 +9,7 @@
 #include <Fonts/FreeSans9pt7b.h>
 
 #include "Weather.h"
-
-time_t getNtpTime();
-
-#include <TimeLib.h>
+#include "NTPtimeESP.h"
 
 #define uS_TO_S_FACTOR 1000000 // Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP 900	   // Time ESP32 will sleep (in seconds)
@@ -36,6 +33,7 @@ const char *password = "0206697723";
 const char *IP = "192.168.2.49";
 const char *NM = "192.168.2.0";
 const char *GW = "192.168.2.254";
+
 
 
 // OpenWeatherMap API Info
@@ -67,9 +65,7 @@ RTC_DATA_ATTR int toDay = 0;
 #define WAKEUP_GPIO_0_BITMASK (1ULL << WAKEUP_GPIO_0)
 #define WAKEUP_GPIO_1_BITMASK (1ULL << WAKEUP_GPIO_1)
 
-time_t getNtpTime();
 void doBail(int timeOut) ;
-
 int getBeaufort(double kmh);
 void createWindData(float speed, int direction);
 
@@ -91,7 +87,7 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.setCursor(160 + len * 16, 32); // loc waqs 208
 	display.print("C");
 
-	// Rain
+	// Rain 
 	display.drawBitmap(117, 60, epd_bitmap_humidity, 32, 32, 0);
 	display.setCursor(155, 89);
 	display.setFont(&FreeSans18pt7b);
@@ -182,6 +178,10 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 
 void setup()
 {
+	pinMode(16, 0x3) ;
+	pinMode(22, 0x3) ;
+	pinMode(23, 0x3) ;
+
 	display.init(115200, true, 20, false);
 	display.setRotation(1);
 
@@ -232,49 +232,46 @@ void setup()
 #define SLEEPAFTERFAIL 300
 void doBail(int timeOut )
 {
-	esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
-	Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
-	delay(10000) ;
-	//ESP.restart() ;
-	esp_deep_sleep_start();
+	if (Serial.isPlugged())
+	{ // Debug if connected.
+		newDay = !newDay;
+		delay(10000);
+		ESP.restart();
+	}
+	else {
+		esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
+		Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
+		esp_deep_sleep_start();
+	}
 }
 
 void loop()
 {
-	time_t dTime = 0;
+	NTPtime ntptime("nl.pool.ntp.org") ;
+	strDateTime dTime;
+	
 	unsigned long sleepTime;
-	int lhour;
-	int lminute;
-	int lsec;
-	int lday;
-	int lyear;
+
 
 	if (WiFi.status() == WL_CONNECTED)
 	{
 		int count = 0;
-		while (dTime == 0 && count++ < 2)
-		{
-			dTime = getNtpTime();
+
+		dTime = ntptime.getNTPtime(1.0,1) ;
+		while ( !dTime.valid ) { // Wait for udp recieve and retransmit after timeout.
+			delay(20) ;
+			dTime = ntptime.getNTPtime(1.0,1) ;
 		}
-
-		lyear = year(dTime);
-		if (lyear == 1970)
-			doBail(300);
-
-		lhour = hour(dTime);
-		lminute = minute(dTime);
-		lday = day(dTime);
-		lsec = second(dTime);
-
-		if (lday != toDay)
+		
+		if ( dTime.day != toDay)
 		{
 			newDay = true;
-			toDay = lday;
+			toDay = dTime.day;
 		}
 
-		formatted_date = String(day(dTime)) + "-" + String(month(dTime)) + "-" + String(lyear);
-		formatted_time = String(lhour < 10 ? "0" : "") + String(lhour) + ":" + String(lminute < 10 ? "0" : "") + String(lminute); //  + ":" + String(second(dTime) < 10 ? "0" : "") + String(second(dTime));
-
+		formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
+		formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
+		
 		HTTPClient http;
 		http.begin(weatherURL);
 		int httpCode = http.GET();
@@ -324,7 +321,7 @@ void loop()
 	}
 	else
 	{
-		sleepTime = calculateSleepTime(lhour, lminute, lsec);
+		sleepTime = calculateSleepTime(dTime.hour, dTime.minute, dTime.second);
 		esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
 		Serial.println("Sleeping for :" + String(sleepTime));
 		UpdateWeatherDisplay(formatted_date, formatted_time);
