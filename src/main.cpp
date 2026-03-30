@@ -74,7 +74,7 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 	if (lhour < 7)
 		return (7 - lhour) * 3600;
 	if (lhour >= 17)
-		return (59 - lminute) * 60 + 60 - lsec; // Max sleep in 32bits time 10^6
+		return (59 - lminute) * 60 + 60 - lsec; // Max sleep in 32bits times 10^6
 
 	// Sync on halv hour
 	lminute %= 30;

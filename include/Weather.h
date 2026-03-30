@@ -23,6 +23,7 @@ extern const unsigned char epd_bitmap_temperature[];
 extern const unsigned char wind_bitmap[];
 extern const unsigned char epd_bitmap_warning[];
 extern const unsigned char epd_bitmap_humidity[];
+extern const unsigned char wind_new[];
 
 // ESP32 display object
 extern GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display;

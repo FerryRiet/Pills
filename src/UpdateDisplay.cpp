@@ -35,7 +35,7 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.drawBitmap(18, 24, icon, 64, 64, 0);
 
 	// Wind info
-	display.drawInvertedBitmap(5, 90, wind_bitmap, 32, 32, 0);
+	display.drawXBitmap(4,91,wind_new,32,27,GxEPD_RED) ;
 	display.setFont(&FreeSans12pt7b);
 	display.setCursor(37, 112);
 	display.print(wind);
