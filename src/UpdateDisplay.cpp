@@ -17,8 +17,7 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.setFont(&FreeSans18pt7b);
 	int len = display.print(temperature);
 	display.setFont(&FreeSans12pt7b);
-	display.setCursor(160 + len * 16, 32); // loc waqs 208
-	display.print("C");
+	display.drawChar(160 + len * 16, 32, 'C', GxEPD_BLACK,GxEPD_WHITE,1,1) ;
 
 	// Rain 
 	display.drawBitmap(117, 60, epd_bitmap_humidity, 32, 32, 0);
