@@ -9,7 +9,7 @@
 #include <Fonts/FreeSans9pt7b.h>
 
 #include "Weather.h"
-#include "open_meteo.h"
+#include "open-meteo.h"
 #include "UpdateDisplay.h"
 #include "NTPtimeESP.h"
 
@@ -154,6 +154,7 @@ void doBail(int timeOut )
 void loop()
 {
 	NTPtime ntptime("nl.pool.ntp.org") ;
+	strWeatherInfo weather ;
 	strDateTime dTime;
 	
 	unsigned long sleepTime;

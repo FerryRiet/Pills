@@ -22,8 +22,8 @@ strWeatherInfo getWeatherInfo()
   
   HTTPClient http;
 
-  http.begin(weatherURL);
-  http.setTimeout(10000);
+  http.begin(WeatherURL);
+  http.setTimeout(1000);
   
   int httpCode = http.GET();
   
