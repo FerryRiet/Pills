@@ -9,6 +9,7 @@
 #include <Fonts/FreeSans9pt7b.h>
 
 #include "Weather.h"
+#include "open_meteo.h"
 #include "UpdateDisplay.h"
 #include "NTPtimeESP.h"
 
@@ -157,6 +158,7 @@ void loop()
 	
 	unsigned long sleepTime;
 
+	weather = getWeatherInfo() ;
 
 	if (WiFi.status() == WL_CONNECTED)
 	{
