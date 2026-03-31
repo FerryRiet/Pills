@@ -159,8 +159,6 @@ void loop()
 	
 	unsigned long sleepTime;
 
-	weather = getWeatherInfo() ;
-
 	if (WiFi.status() == WL_CONNECTED)
 	{
 		int count = 0;
@@ -171,8 +169,7 @@ void loop()
 			dTime = ntptime.getNTPtime(1.0,1) ;
 		}
 		
-		if ( dTime.day != toDay)
-		{
+		if ( dTime.day != toDay) {
 			newDay = true;
 			toDay = dTime.day;
 		}
@@ -180,48 +177,13 @@ void loop()
 		formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
 		formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
 		
-		HTTPClient http;
-		http.begin(weatherURL);
-		int httpCode = http.GET();
-
-		if (httpCode > 0)
-		{
-			String payload = http.getString();
-
-			JsonDocument doc;
-			DeserializationError error = deserializeJson(doc, payload);
-			if (!error)
-			{
-				savedTemp = doc["current"]["temperature_2m"];
-				savedHumid = doc["current"]["precipitation"];
-				int weather_code = doc["current"]["weather_code"];
-
-				icon = selectWeatherIcon(weather_code);
-				createWindData(doc["current"]["wind_speed_10m"], doc["current"]["wind_direction_10m"]);
-
-				temperature = String(savedTemp, 1);	   //+ " °C" ;
-				precipitation = String(savedHumid, 1); // + " " + String(doc["current_units"]["precipitation"]);;
-			}
-			else
-			{
-				temperature = "!JSON";
-				precipitation = "!JSON";
-			}
-		}
-		else
-		{
-			temperature = "!" + httpCode;
-			precipitation = "!" + httpCode;
-		}
-		http.end();
-	}
-
-	if (WiFi.status() != WL_CONNECTED)
-	{
+		weather = getWeatherInfo() ;
+	
+	} else {
 		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
 	}
-	else
-		WiFi.disconnect(true, true); // Save power?
+	
+	WiFi.disconnect(true, true); // Save power?
 
 	if (newDay)
 	{
