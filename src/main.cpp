@@ -163,10 +163,12 @@ void loop()
 	{
 		int count = 0;
 
-		dTime = ntptime.getNTPtime(1.0,1) ;
+		dTime = ntptime.getNTPtime(1.0,1) ;  // Waits for udp return
+		weather = getWeatherInfo() ;
+
 		while ( !dTime.valid ) { // Wait for udp recieve and retransmit after timeout.
-			delay(20) ;
 			dTime = ntptime.getNTPtime(1.0,1) ;
+			delay(20) ;
 		}
 		
 		if ( dTime.day != toDay) {
@@ -176,24 +178,18 @@ void loop()
 
 		formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
 		formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
-		
-		weather = getWeatherInfo() ;
 	
 	} else {
 		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
+		doBail(300) ; // Try again in 3 minutes.
 	}
 	
 	WiFi.disconnect(true, true); // Save power?
 
-	if (newDay)
-	{
+	if (newDay) {
 		UpdatePillsDisplay(formatted_date, formatted_time);
 	}
-	else
-	{
-		sleepTime = calculateSleepTime(dTime.hour, dTime.minute, dTime.second);
-		esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
-		Serial.println("Sleeping for :" + String(sleepTime));
+	else {
 		UpdateWeatherDisplay(formatted_date, formatted_time);
 	}
 
@@ -207,6 +203,8 @@ void loop()
 	}
 	else
 	{
+		sleepTime = calculateSleepTime(dTime.hour, dTime.minute, dTime.second);
+		esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
 		esp_deep_sleep_start();
 	}
 }
