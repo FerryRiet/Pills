@@ -3,8 +3,11 @@
 
 #include <Arduino.h>
 
-extern void UpdateWeatherDisplay(String &dateStr, String &timeStr);
-extern void UpdatePillsDisplay(String &dateStr, String &timeStr);
+#include "Weather.h"
+#include "NTPtimeESP.h"
+
+extern void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime);
+extern void UpdatePillsDisplay(strDateTime &dTime);
 extern void UpdateVersionDisplay() ;
 
 #endif

@@ -1,8 +1,12 @@
 // UpdateDisplay.cpp - Functions for screen update.
 
-#include "Weather.h"
+#include <GxEPD2_3C.h>
+#include <Fonts/FreeSans18pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
+#include <Fonts/FreeSans9pt7b.h>
 
-void UpdateWeatherDisplay(String &dateStr, String &timeStr)
+
+void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 {
 	// display.clearScreen();
 	display.fillScreen(GxEPD_WHITE);
@@ -15,7 +19,7 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.drawBitmap(118, 10, epd_bitmap_temperature, 32, 32, 0);
 	display.setCursor(155, 32);
 	display.setFont(&FreeSans18pt7b);
-	int len = display.print(temperature);
+	int len = display.print(weather.temperature);
 	display.setFont(&FreeSans12pt7b);
 	display.drawChar(160 + len * 16, 32, 'C', GxEPD_BLACK,GxEPD_WHITE,1,1) ;
 
@@ -23,13 +27,13 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.drawBitmap(117, 60, epd_bitmap_humidity, 32, 32, 0);
 	display.setCursor(155, 89);
 	display.setFont(&FreeSans18pt7b);
-	display.print(precipitation);
+	display.print(weather.precipitation);
 	display.setFont(&FreeSans12pt7b);
 	display.setCursor(208, 89);
 	display.print("mm");
 
 	// Weather Icon
-	display.drawBitmap(18, 24, icon, 64, 64, 0);
+	display.drawBitmap(18, 24, selectWeatherIcon(weather.weather_code), 64, 64, 0);
 
 	// Wind info
 	display.drawXBitmap(4,93,wind_new,32,27,GxEPD_RED) ;
@@ -38,17 +42,21 @@ void UpdateWeatherDisplay(String &dateStr, String &timeStr)
 	display.print(wind);
 
 	// Date and time
+
+	String 	formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
+	String 	formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
+
 	display.setFont(&FreeSans9pt7b);
 	display.setTextColor(GxEPD_RED);
 	display.setCursor(6, 12);
-	display.print(dateStr);
+	display.print(formatted_date);
 
 	display.setCursor(155, 120);
-	display.print(timeStr);
+	display.print(formatted_time);
 	display.display();
 }
 
-void UpdatePillsDisplay(String &dateStr, String &timeStr)
+void UpdatePillsDisplay(strDateTime &dTime)
 {
 	display.fillScreen(GxEPD_RED);
 	display.setFont(&FreeSans18pt7b);

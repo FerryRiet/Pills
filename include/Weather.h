@@ -29,11 +29,18 @@ extern const unsigned char wind_new[];
 extern GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display;
 
 // Weather data globals
-extern String temperature;
-extern String precipitation;
-extern String windSpeed;
-extern String windDirection;
-extern String wind;
+
+struct strWeatherInfo
+{
+  float temperature ;
+  float surface_pressure ;
+  int   weather_code ;
+  int   relative_humidity_2m;
+  float precipitation ;
+  float wind_speed_10m;
+  int   wind_direction_10m;
+  boolean valid;
+};
 
 // Icon pointer
 extern const unsigned char *icon;

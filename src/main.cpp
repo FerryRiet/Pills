@@ -84,7 +84,7 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 
 void setup()
 {
-	pinMode(16, 0x3) ;
+	pinMode(16, 0x3) ; // There are some errors on the gxdpd lib.
 	pinMode(22, 0x3) ;
 	pinMode(23, 0x3) ;
 
@@ -121,7 +121,7 @@ void setup()
 		if (wifitimeout > 200)
 		{
 			WiFi.disconnect();
-			break;
+			doBail(300) ;
 		}
 	}
 
@@ -176,8 +176,7 @@ void loop()
 			toDay = dTime.day;
 		}
 
-		formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
-		formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
+
 	
 	} else {
 		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
@@ -187,10 +186,10 @@ void loop()
 	WiFi.disconnect(true, true); // Save power?
 
 	if (newDay) {
-		UpdatePillsDisplay(formatted_date, formatted_time);
+		UpdatePillsDisplay(dTime);
 	}
 	else {
-		UpdateWeatherDisplay(formatted_date, formatted_time);
+		UpdateWeatherDisplay(weather,dTime);
 	}
 
 	display.hibernate();
