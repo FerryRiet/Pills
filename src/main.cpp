@@ -22,11 +22,9 @@
 #define RES_PIN (22)
 #define DC_PIN (23)
 
-GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+//GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
 
-// Date/time  strings
-String formatted_date = "01-01-2000";
-String formatted_time = "00:00:00";
+GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
 
 // WiFi Credentials
 const char *ssid = "Superwome";
@@ -67,7 +65,7 @@ RTC_DATA_ATTR int toDay = 0;
 
 void doBail(int timeOut);
 int getBeaufort(double kmh);
-void createWindData(float speed, int direction);
+String createWindData(float speed, int direction);
 
 
 unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
@@ -197,8 +195,9 @@ void loop()
 	if (Serial.isPlugged())
 	{ // Debug if connected.
 		newDay = !newDay;
-		delay(10000);
-		ESP.restart();
+		delay(10000) ;
+		esp_sleep_enable_timer_wakeup(20000);
+		esp_deep_sleep_start();
 	}
 	else
 	{

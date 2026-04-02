@@ -5,6 +5,7 @@
 #include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
 
+#include "UpdateDisplay.h"
 
 void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 {
@@ -19,7 +20,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 	display.drawBitmap(118, 10, epd_bitmap_temperature, 32, 32, 0);
 	display.setCursor(155, 32);
 	display.setFont(&FreeSans18pt7b);
-	int len = display.print(weather.temperature);
+	int len = display.print(String(weather.temperature,1));
 	display.setFont(&FreeSans12pt7b);
 	display.drawChar(160 + len * 16, 32, 'C', GxEPD_BLACK,GxEPD_WHITE,1,1) ;
 
@@ -27,7 +28,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 	display.drawBitmap(117, 60, epd_bitmap_humidity, 32, 32, 0);
 	display.setCursor(155, 89);
 	display.setFont(&FreeSans18pt7b);
-	display.print(weather.precipitation);
+	display.print(String(weather.precipitation,1));
 	display.setFont(&FreeSans12pt7b);
 	display.setCursor(208, 89);
 	display.print("mm");
@@ -39,7 +40,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 	display.drawXBitmap(4,93,wind_new,32,27,GxEPD_RED) ;
 	display.setFont(&FreeSans12pt7b);
 	display.setCursor(37, 114);
-	display.print(wind);
+	display.print(createWindData(weather.wind_speed_10m, weather.wind_direction_10m));
 
 	// Date and time
 
@@ -67,7 +68,8 @@ void UpdatePillsDisplay(strDateTime &dTime)
 	display.print("Neem je pillen!");
 
 	display.setCursor(9, 117);
-	display.print(dateStr);
+	String 	formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
+	display.print(formatted_date);
 
 	display.display();
 }

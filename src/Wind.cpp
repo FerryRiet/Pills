@@ -1,7 +1,5 @@
 #include "Arduino.h"
 
-extern String wind;
-
 int getBeaufort(double kmh) {
     if (kmh < 1)   return 0;
     if (kmh <= 5)  return 1;
@@ -19,7 +17,7 @@ int getBeaufort(double kmh) {
 }
 
 
-void createWindData(float speed, int direction) {
+String createWindData(float speed, int direction) {
 	String windDirection;
 	if ( direction > ( 360 - 22 ) || direction < 22  ) windDirection = "N" ;
 	else if ( direction >= 22 && direction < 67  ) windDirection = "NO" ;
@@ -30,5 +28,5 @@ void createWindData(float speed, int direction) {
 						else if ( direction >= 246 && direction < 291  ) windDirection = "W" ;
 							else windDirection = "NW" ;
 
-	wind = windDirection + " " + String(getBeaufort(speed)) ;
+	return windDirection + " " + String(getBeaufort(speed)) ;
 }
