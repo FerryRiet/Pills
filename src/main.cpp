@@ -23,8 +23,8 @@
 #define DC_PIN (23)
 
 //GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
-
 GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+//GxEPD2_3C<GxEPD2_420c_Z21,GxEPD2_420c_Z21::HEIGHT> display(GxEPD2_420c_Z21(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
 
 // WiFi Credentials
 const char *ssid = "Superwome";
@@ -87,7 +87,7 @@ void setup()
 	pinMode(23, 0x3) ;
 
 	display.init(115200, true, 20, false);
-	display.setRotation(1);
+	//display.setRotation(1);
 
 	Serial.begin(115200);
 
@@ -163,7 +163,12 @@ void loop()
 
 		dTime = ntptime.getNTPtime(1.0,1) ;  // Waits for udp return
 		weather = getWeatherInfo() ;
-
+		
+		while ( ! weather.valid ) {
+			weather = getWeatherInfo() ;
+			delay(20) ;
+		}
+		
 		while ( !dTime.valid ) { // Wait for udp recieve and retransmit after timeout.
 			dTime = ntptime.getNTPtime(1.0,1) ;
 			delay(20) ;
@@ -173,8 +178,6 @@ void loop()
 			newDay = true;
 			toDay = dTime.day;
 		}
-
-
 	
 	} else {
 		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
@@ -195,7 +198,7 @@ void loop()
 	if (Serial.isPlugged())
 	{ // Debug if connected.
 		newDay = !newDay;
-		delay(10000) ;
+		delay(40000) ;
 		esp_sleep_enable_timer_wakeup(20000);
 		esp_deep_sleep_start();
 	}
