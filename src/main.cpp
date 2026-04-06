@@ -82,7 +82,7 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 
 void setup()
 {
-	pinMode(16, 0x3) ; // There are some errors on the gxdpd lib.
+	pinMode(16, OUTPUT) ; // There are some errors on the gxdpd lib.
 	pinMode(22, 0x3) ;
 	pinMode(23, 0x3) ;
 
@@ -126,6 +126,9 @@ void setup()
 	esp_sleep_enable_ext1_wakeup_io(BUTTON_PIN_BITMASK(WAKEUP_GPIO_0), ESP_EXT1_WAKEUP_ANY_HIGH);
 	esp_sleep_enable_ext1_wakeup_io(BUTTON_PIN_BITMASK(WAKEUP_GPIO_1), ESP_EXT1_WAKEUP_ANY_HIGH);
 
+	pinMode(WAKEUP_GPIO_0, INPUT) ;
+	pinMode(WAKEUP_GPIO_1, INPUT) ;
+	
 	gpio_pulldown_en(WAKEUP_GPIO_0); // LP_GPIO0 is tied to GND in order to wake up in HIGH
 	gpio_pullup_dis(WAKEUP_GPIO_0);	 // Disable PULL_UP in order to allow it to wakeup on HIGH
 	gpio_pulldown_en(WAKEUP_GPIO_1); // LP_GPIO0 is tied to GND in order to wake up in HIGH
