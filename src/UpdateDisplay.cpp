@@ -105,3 +105,20 @@ void UpdateVersionDisplay()
 
 	display.display();
 }
+
+void UpdateErrorDisplay(strDateTime &dTime) {
+	String 	formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
+	String 	formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
+
+	// Error Icon
+	display.drawBitmap(18, 24,stop_bits, 64, 64, 0);
+
+	display.setFont(&FreeSans9pt7b);
+	display.setTextColor(GxEPD_RED);
+	display.setCursor(6, 12);
+	display.print(formatted_date);
+
+	display.setCursor(155, 120);
+	display.print(formatted_time);
+	display.display();
+}

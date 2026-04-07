@@ -152,6 +152,9 @@ void doBail(int timeOut )
 	}
 }
 
+
+#define TRYCOUNT 5
+
 void loop()
 {
 	NTPtime ntptime("nl.pool.ntp.org") ;
@@ -159,41 +162,44 @@ void loop()
 	strDateTime dTime;
 	
 	unsigned long sleepTime;
+	weather.valid = dTime.valid = false ;
 
 	if (WiFi.status() == WL_CONNECTED)
 	{
-		int count = 0;
 
 		dTime = ntptime.getNTPtime(1.0,1) ;  // Waits for udp return
+
+		int count = 0;
 		weather = getWeatherInfo() ;
-		
 		while ( ! weather.valid ) {
 			weather = getWeatherInfo() ;
-			delay(20) ;
+			if ( count++ == TRYCOUNT ) break ;
+			delay(50) ;
 		}
-		
+		count = 0 ;
 		while ( !dTime.valid ) { // Wait for udp recieve and retransmit after timeout.
 			dTime = ntptime.getNTPtime(1.0,1) ;
-			delay(20) ;
+			if (count++ == TRYCOUNT ) break ;
+			delay(50) ;
 		}
 		
 		if ( dTime.day != toDay) {
 			newDay = true;
 			toDay = dTime.day;
 		}
+		WiFi.disconnect(true, true); // Save power?
+	} 
 	
-	} else {
-		display.drawBitmap(4, 3, epd_bitmap_warning, 16, 16, 0);
-		doBail(300) ; // Try again in 3 minutes.
-	}
-	
-	WiFi.disconnect(true, true); // Save power?
-
 	if (newDay) {
 		UpdatePillsDisplay(dTime);
 	}
 	else {
-		UpdateWeatherDisplay(weather,dTime);
+		if ( weather.valid ) { 
+			UpdateWeatherDisplay(weather,dTime);
+		} 
+		else { 
+			UpdateErrorDisplay(dTime) ;
+		}
 	}
 
 	display.hibernate();

@@ -27,7 +27,7 @@ strWeatherInfo getWeatherInfo()
   
   int httpCode = http.GET();
   
-  if (httpCode > 0) {
+  if (httpCode == 200) {
     String payload = http.getString();
     
 		JsonDocument doc;
