@@ -12,6 +12,7 @@
 #include "open-meteo.h"
 #include "UpdateDisplay.h"
 #include "NTPtimeESP.h"
+#include "LocalSensor.h"
 
 #define uS_TO_S_FACTOR 1000000 // Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP 900	   // Time ESP32 will sleep (in seconds)
@@ -166,7 +167,6 @@ void loop()
 
 	if (WiFi.status() == WL_CONNECTED)
 	{
-
 		dTime = ntptime.getNTPtime(1.0,1) ;  // Waits for udp return
 
 		int count = 0;
@@ -189,19 +189,21 @@ void loop()
 		}
 		WiFi.disconnect(true, true); // Save power?
 	} 
-	
+	Adafruit_BME680 bme = setupSensor() ;
+
 	if (newDay) {
 		UpdatePillsDisplay(dTime);
 	}
 	else {
 		if ( weather.valid ) { 
 			UpdateWeatherDisplay(weather,dTime);
+			UpdateSensorDisplay(bme) ;
 		} 
 		else { 
 			UpdateErrorDisplay(dTime) ;
 		}
 	}
-
+	display.display() ;
 	display.hibernate();
 
 	if (Serial.isPlugged())

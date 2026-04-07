@@ -54,7 +54,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 
 	display.setCursor(155, 120);
 	display.print(formatted_time);
-	display.display();
+	//display.display();
 }
 
 void UpdatePillsDisplay(strDateTime &dTime)
@@ -71,7 +71,7 @@ void UpdatePillsDisplay(strDateTime &dTime)
 	String 	formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
 	display.print(formatted_date);
 
-	display.display();
+	//display.display();
 }
 
 void UpdateVersionDisplay()
@@ -120,5 +120,20 @@ void UpdateErrorDisplay(strDateTime &dTime) {
 
 	display.setCursor(155, 120);
 	display.print(formatted_time);
-	display.display();
+	//display.display();
+}
+
+#include "Adafruit_BME680.h"
+void UpdateSensorDisplay(Adafruit_BME680 &bme) {
+	display.setFont(&FreeSans9pt7b);
+	display.setTextColor(GxEPD_RED);
+	display.setCursor(6, 140);
+	bme.beginReading();
+	display.print(String("Local temp: ") + String(bme.readTemperature()));
+	display.setCursor(6, 160);
+	display.print(String("Humidity: ") + String(bme.readHumidity()) + " %");
+	display.setCursor(6, 180);
+	display.print(String("Pressure: ") + String(bme.readPressure() / 100.0) + " hPa");
+	bme.endReading();
+
 }
