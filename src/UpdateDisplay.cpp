@@ -124,16 +124,20 @@ void UpdateErrorDisplay(strDateTime &dTime) {
 }
 
 #include "Adafruit_BME680.h"
+
+
+#define TEMP_CORRECTION (-2.5) // BME680 read to high
+
 void UpdateSensorDisplay(Adafruit_BME680 &bme) {
 	display.setFont(&FreeSans9pt7b);
 	display.setTextColor(GxEPD_RED);
 	display.setCursor(6, 140);
-	bme.beginReading();
-	display.print(String("Local temp: ") + String(bme.readTemperature()));
+	int delayms = bme.beginReading();
+	delay(delayms) ;
+	display.print(String("Local temp: ") + String(bme.readTemperature() + TEMP_CORRECTION));
 	display.setCursor(6, 160);
 	display.print(String("Humidity: ") + String(bme.readHumidity()) + " %");
 	display.setCursor(6, 180);
 	display.print(String("Pressure: ") + String(bme.readPressure() / 100.0) + " hPa");
 	bme.endReading();
-
 }

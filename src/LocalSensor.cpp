@@ -19,7 +19,7 @@ Adafruit_BME680 setupSensor() {
   bme.setHumidityOversampling(BME680_OS_2X);
   bme.setPressureOversampling(BME680_OS_4X);
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-  bme.setGasHeater(320, 150); // 320*C for 150 ms
+  bme.setGasHeater(130, 100); // 320*C for 150 ms
 
   if (! bme.performReading()) {
     Serial.println("Failed to perform reading :(");
