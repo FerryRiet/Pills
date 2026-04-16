@@ -54,6 +54,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 
 	display.setCursor(155, 120);
 	display.print(formatted_time);
+
 	//display.display();
 }
 
@@ -70,7 +71,7 @@ void UpdatePillsDisplay(strDateTime &dTime)
 	display.setCursor(9, 117);
 	String 	formatted_date = String(dTime.day) + "-" + String(dTime.month) + "-" + String(dTime.year);
 	display.print(formatted_date);
-
+	display.drawXBitmap(180,48,pills_bits,64,64,GxEPD_WHITE) ; 
 	//display.display();
 }
 
@@ -111,7 +112,7 @@ void UpdateErrorDisplay(strDateTime &dTime) {
 	String 	formatted_time = String(dTime.hour < 10 ? "0" : "") + String(dTime.hour) + ":" + String(dTime.minute < 10 ? "0" : "") + String(dTime.minute); 
 
 	// Error Icon
-	display.drawBitmap(18, 24,stop_bits, 64, 64, 0);
+	display.drawXBitmap(18, 24,stop_bits, 64, 64, GxEPD_WHITE);
 
 	display.setFont(&FreeSans9pt7b);
 	display.setTextColor(GxEPD_RED);
@@ -126,7 +127,7 @@ void UpdateErrorDisplay(strDateTime &dTime) {
 #include "Adafruit_BME680.h"
 
 
-#define TEMP_CORRECTION (-2.5) // BME680 read to high
+#define TEMP_CORRECTION (-2.3) // BME680 read to high
 
 void UpdateSensorDisplay(Adafruit_BME680 &bme) {
 	display.setFont(&FreeSans9pt7b);

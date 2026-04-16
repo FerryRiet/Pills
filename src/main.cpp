@@ -23,8 +23,8 @@
 #define RES_PIN (22)
 #define DC_PIN (23)
 
-//GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
-GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+//GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
 //GxEPD2_3C<GxEPD2_420c_Z21,GxEPD2_420c_Z21::HEIGHT> display(GxEPD2_420c_Z21(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
 
 // WiFi Credentials
@@ -88,7 +88,8 @@ void setup()
 	pinMode(23, 0x3) ;
 
 	display.init(115200, true, 20, false);
-	//display.setRotation(1);
+	
+	display.setRotation(1);
 
 	Serial.begin(115200);
 
