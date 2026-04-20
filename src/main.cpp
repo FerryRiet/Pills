@@ -148,6 +148,7 @@ void doBail(int timeOut )
 		ESP.restart();
 	}
 	else {
+		WiFi.disconnect(true, true) ;
 		esp_sleep_enable_timer_wakeup(timeOut * uS_TO_S_FACTOR);
 		Serial.println("Sleeping after failed: " + String(SLEEPAFTERFAIL));
 		esp_deep_sleep_start();
@@ -155,7 +156,7 @@ void doBail(int timeOut )
 }
 
 
-#define TRYCOUNT 5
+#define TRYCOUNT 10
 
 void loop()
 {
@@ -184,13 +185,15 @@ void loop()
 			delay(50) ;
 		}
 		
+		if ( dTime.day == 0 ) doBail(300) ;
+
 		if ( dTime.day != toDay) {
 			newDay = true;
 			toDay = dTime.day;
 		}
 		WiFi.disconnect(true, true); // Save power?
 	} 
-	Adafruit_BME680 bme = setupSensor() ;
+	
 
 	if (newDay) {
 		UpdatePillsDisplay(dTime);
@@ -198,7 +201,8 @@ void loop()
 	else {
 		if ( weather.valid ) { 
 			UpdateWeatherDisplay(weather,dTime);
-			UpdateSensorDisplay(bme) ;
+			//Adafruit_BME680 bme = setupSensor() ;
+			//UpdateSensorDisplay(bme) ;
 		} 
 		else { 
 			UpdateErrorDisplay(dTime) ;
