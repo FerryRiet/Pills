@@ -16,17 +16,9 @@ int getBeaufort(double kmh) {
     return 12; // Orkaankracht
 }
 
-
-String createWindData(float speed, int direction) {
-	String windDirection;
-	if ( direction > ( 360 - 22 ) || direction < 22  ) windDirection = "N" ;
-	else if ( direction >= 22 && direction < 67  ) windDirection = "NO" ;
-		else if ( direction >= 67 && direction < 112  ) windDirection = "O" ;
-			else if ( direction >= 112 && direction < 156  ) windDirection = "ZO" ;
-				else if ( direction >= 156 && direction < 201  ) windDirection = "Z" ;
-					else if ( direction >= 201 && direction < 246  ) windDirection = "ZW" ;
-						else if ( direction >= 246 && direction < 291  ) windDirection = "W" ;
-							else windDirection = "NW" ;
-
-	return windDirection + " " + String(getBeaufort(speed)) ;
+String createWindData(float speed, int deg) {
+    const char* dirs[] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                          "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+    int idx = ((deg + 11) / 22) % 16;
+	return String(dirs[idx])  + " " + String(getBeaufort(speed)) ;
 }

@@ -4,6 +4,7 @@
 #include <Fonts/FreeSans18pt7b.h>
 #include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include "Adafruit_BME680.h"
 
 #include "UpdateDisplay.h"
 
@@ -17,29 +18,29 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 	display.drawLine(104, 0, 104, 127, 0);
 
 	// Temp
-	display.drawBitmap(118, 10, epd_bitmap_temperature, 32, 32, 0);
-	display.setCursor(155, 32);
+	display.drawBitmap(118, 5, epd_bitmap_temperature, 32, 32, 0);
+	display.setCursor(155, 27);
 	display.setFont(&FreeSans18pt7b);
 	int len = display.print(String(weather.temperature,1));
 	display.setFont(&FreeSans12pt7b);
-	display.drawChar(160 + len * 16, 32, 'C', GxEPD_BLACK,GxEPD_WHITE,1,1) ;
+	display.drawChar(160 + len * 16, 30, 'C', GxEPD_BLACK,GxEPD_WHITE,1,1) ;
 
 	// Rain 
-	display.drawBitmap(117, 60, epd_bitmap_humidity, 32, 32, 0);
-	display.setCursor(155, 89);
+	display.drawBitmap(117, 50, epd_bitmap_humidity, 32, 32, 0);
+	display.setCursor(155, 79);
 	display.setFont(&FreeSans18pt7b);
 	display.print(String(weather.precipitation,1));
 	display.setFont(&FreeSans12pt7b);
-	display.setCursor(208, 89);
+	display.setCursor(208, 81);
 	display.print("mm");
 
 	// Weather Icon
 	display.drawBitmap(18, 24, selectWeatherIcon(weather.weather_code), 64, 64, 0);
 
 	// Wind info
-	display.drawXBitmap(4,93,wind_new,32,27,GxEPD_RED) ;
+	display.drawXBitmap(117,93,wind_new,32,27,GxEPD_RED) ;
 	display.setFont(&FreeSans12pt7b);
-	display.setCursor(37, 114);
+	display.setCursor(155, 113);
 	display.print(createWindData(weather.wind_speed_10m, weather.wind_direction_10m));
 
 	// Date and time
@@ -52,7 +53,7 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 	display.setCursor(6, 12);
 	display.print(formatted_date);
 
-	display.setCursor(155, 120);
+	display.setCursor(6, 115);
 	display.print(formatted_time);
 
 	//display.display();
@@ -124,10 +125,7 @@ void UpdateErrorDisplay(strDateTime &dTime) {
 	//display.display();
 }
 
-#include "Adafruit_BME680.h"
-
-
-#define TEMP_CORRECTION (-2.3) // BME680 read to high
+#define TEMP_CORRECTION (-2.7) // BME680 read to high
 
 void UpdateSensorDisplay(Adafruit_BME680 &bme) {
 	display.setFont(&FreeSans9pt7b);

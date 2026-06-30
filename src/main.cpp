@@ -1,3 +1,5 @@
+#define USE_213_Z98C
+
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
@@ -14,8 +16,8 @@
 #include "NTPtimeESP.h"
 #include "LocalSensor.h"
 
+
 #define uS_TO_S_FACTOR 1000000 // Conversion factor for micro seconds to seconds
-#define TIME_TO_SLEEP 900	   // Time ESP32 will sleep (in seconds)
 
 // ESP32-C6 CS(SS)=16,SCL(SCK)=4,SDA(MOSI)=6,BUSY=21,RES(RST)=22,DC=23
 #define CS_PIN (16)
@@ -23,29 +25,23 @@
 #define RES_PIN (22)
 #define DC_PIN (23)
 
-GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
-//GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
-//GxEPD2_3C<GxEPD2_420c_Z21,GxEPD2_420c_Z21::HEIGHT> display(GxEPD2_420c_Z21(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+#ifdef USE_420C_Z21
+GxEPD2_3C<GxEPD2_420c_Z21, GxEPD2_420c_Z21::HEIGHT> display(GxEPD2_420c_Z21(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+#endif
+
+#ifdef USE_290_C90C	
+GxEPD2_3C<GxEPD2_290_C90c,GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+#endif
+
+#ifdef USE_213_Z98C
+GxEPD2_3C<GxEPD2_213_Z98c,GxEPD2_213_Z98c::HEIGHT> display(GxEPD2_213_Z98c(/*CS=5*/ CS_PIN, /*DC=*/DC_PIN, /*RES=*/RES_PIN, /*BUSY=*/BUSY_PIN)); // GDEY0213Z98 122x250, SSD1680
+#endif
 
 // WiFi Credentials
 const char *ssid = "Superwome";
 const char *password = "0206697723";
 
-const char *IP = "192.168.2.49";
-const char *NM = "192.168.2.0";
-const char *GW = "192.168.2.254";
-
-// OpenWeatherMap API Info
-
-const String weatherURL = "https://api.open-meteo.com/v1/forecast?latitude=52.35&longitude=4.80&&current=wind_direction_10m,temperature_2m,precipitation,weather_code,wind_speed_10m,rain&models=knmi_seamless";
-
 int wifitimeout = 0;
-
-String temperature = "";
-String precipitation = "";
-String windSpeed = "";
-String windDirection = "";
-String wind = "";
 
 RTC_DATA_ATTR const unsigned char *icon = nullptr;
 RTC_DATA_ATTR float savedTemp = 0.0;
@@ -65,9 +61,6 @@ RTC_DATA_ATTR int toDay = 0;
 #define WAKEUP_GPIO_1_BITMASK (1ULL << WAKEUP_GPIO_1)
 
 void doBail(int timeOut);
-int getBeaufort(double kmh);
-String createWindData(float speed, int direction);
-
 
 unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 {
@@ -84,8 +77,8 @@ unsigned long calculateSleepTime(int lhour, int lminute, int lsec)
 void setup()
 {
 	pinMode(16, OUTPUT) ; // There are some errors on the gxdpd lib.
-	pinMode(22, 0x3) ;
-	pinMode(23, 0x3) ;
+	pinMode(22, OUTPUT) ;
+	pinMode(23, OUTPUT) ;
 
 	display.init(115200, true, 20, false);
 	
@@ -107,12 +100,9 @@ void setup()
 		}
 	}
 
-/* BUG */	
-//	WiFi.config(IPAddress(192,168,2,49),IPAddress(192,168,2,254),IPAddress(192,168,2,0),IPAddress(8,8,8,8)) ; 
 	WiFi.mode(WIFI_STA) ;
 	WiFi.setHostname("Pills") ;
 	WiFi.begin(ssid, password);
-/* end BUG*/
 
 	while (WiFi.status() != WL_CONNECTED)
 	{
@@ -201,27 +191,29 @@ void loop()
 	else {
 		if ( weather.valid ) { 
 			UpdateWeatherDisplay(weather,dTime);
-			//Adafruit_BME680 bme = setupSensor() ;
-			//UpdateSensorDisplay(bme) ;
 		} 
 		else { 
 			UpdateErrorDisplay(dTime) ;
 		}
 	}
-	display.display() ;
+
+
+	display.display(false) ;
 	display.hibernate();
 
 	if (Serial.isPlugged())
 	{ // Debug if connected.
 		newDay = !newDay;
-		delay(40000) ;
-		esp_sleep_enable_timer_wakeup(20000);
+		delay(10000) ;
+		esp_sleep_enable_timer_wakeup(10000);
 		esp_deep_sleep_start();
 	}
 	else
 	{
-		sleepTime = calculateSleepTime(dTime.hour, dTime.minute, dTime.second);
-		esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
+		if ( !newDay ) {
+			sleepTime = calculateSleepTime(dTime.hour, dTime.minute, dTime.second);
+			esp_sleep_enable_timer_wakeup(sleepTime * uS_TO_S_FACTOR);
+		}
 		esp_deep_sleep_start();
 	}
 }

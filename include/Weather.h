@@ -28,9 +28,16 @@ extern const unsigned char stop_bits[];
 extern const unsigned char pills_bits[]; 
 
 // ESP32 display object
+#ifdef USE_213_Z98C
 extern GxEPD2_3C<GxEPD2_213_Z98c, GxEPD2_213_Z98c::HEIGHT> display;
-//extern GxEPD2_3C<GxEPD2_290_C90c, GxEPD2_290_C90c::HEIGHT> display;
-//extern GxEPD2_3C<GxEPD2_420c_Z21, 300> display;
+#endif
+#ifdef USE_290_C90C
+extern GxEPD2_3C<GxEPD2_290_C90c, GxEPD2_290_C90c::HEIGHT> display;
+#endif  
+
+#ifdef USE_420C_Z21
+extern GxEPD2_3C<GxEPD2_420c_Z21, 300> display;
+#endif
 
 // Weather data globals
 
@@ -43,6 +50,7 @@ struct strWeatherInfo
   float precipitation ;
   float wind_speed_10m;
   int   wind_direction_10m;
+  String time;
   boolean valid;
 };
 

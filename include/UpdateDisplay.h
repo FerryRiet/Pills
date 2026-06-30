@@ -2,7 +2,7 @@
 #define UpdateDisplay_H
 
 #include <Arduino.h>
-
+#define USE_213_Z98C
 #include "Weather.h"
 #include "NTPtimeESP.h"
 #include "Adafruit_BME680.h"

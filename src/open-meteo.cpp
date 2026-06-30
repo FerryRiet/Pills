@@ -19,6 +19,7 @@ strWeatherInfo getWeatherInfo()
   info.precipitation = 0.0;
   info.wind_speed_10m = 0.0;
   info.wind_direction_10m = 0;
+  info.time = "";
   
   HTTPClient http;
 
@@ -27,13 +28,13 @@ strWeatherInfo getWeatherInfo()
   
   int httpCode = http.GET();
   
-  if (httpCode == 200) {
-    String payload = http.getString();
-    
-		JsonDocument doc;
-		DeserializationError error = deserializeJson(doc, payload);
-    
-    if (!error) {
+    if (httpCode == 200) {
+      String payload = http.getString();
+
+      JsonDocument doc;
+      DeserializationError error = deserializeJson(doc, payload);
+
+      if (!error) {
       info.temperature = doc["current"]["temperature_2m"] | 0.0f;
       info.surface_pressure = doc["current"]["pressure"] | 0.0f;
       info.weather_code = doc["current"]["weather_code"] | 0;
@@ -41,6 +42,7 @@ strWeatherInfo getWeatherInfo()
       info.precipitation = doc["current"]["precipitation"] | 0.0f;
       info.wind_speed_10m = doc["current"]["wind_speed_10m"] | 0.0f;
       info.wind_direction_10m = doc["current"]["wind_direction_10m"] | 0;
+      info.time = doc["current"]["time"] | "";
 
       info.valid = true ;
     }

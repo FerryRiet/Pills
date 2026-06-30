@@ -29,7 +29,7 @@ float _timeZone=0.0;
 bool NTPtime::setSendInterval(unsigned long _sendInterval_) {
 	bool retVal = false;
 	if(_sendInterval_ <= MAX_SEND_INTERVAL) {
-		_sendInterval = _sendInterval_ * SEC_TO_MS;
+		this->_sendInterval = _sendInterval_ * SEC_TO_MS;
 		retVal = true;
 	}
 
@@ -39,7 +39,7 @@ bool NTPtime::setSendInterval(unsigned long _sendInterval_) {
 bool NTPtime::setRecvTimeout(unsigned long _recvTimeout_) {
 	bool retVal = false;
 	if(_recvTimeout_ <= MAC_RECV_TIMEOUT) {
-		_recvTimeout = _recvTimeout_ * SEC_TO_MS;
+		this->_recvTimeout = _recvTimeout_ * SEC_TO_MS;
 		retVal = true;
 	}
 
@@ -47,11 +47,11 @@ bool NTPtime::setRecvTimeout(unsigned long _recvTimeout_) {
 }
 
 NTPtime::NTPtime(String NTPserver) {
-	_NTPserver = NTPserver;
-	_sendPhase = true;
-	_sentTime  = 0;
-	_sendInterval = SEND_INTRVL_DEFAULT * SEC_TO_MS;
-	_recvTimeout = RECV_TIMEOUT_DEFAULT * SEC_TO_MS;
+	this->_NTPserver = NTPserver;
+	this->_sendPhase = true;
+	this->_sentTime  = 0;
+	this->_sendInterval = SEND_INTRVL_DEFAULT * SEC_TO_MS;
+	this->_recvTimeout = RECV_TIMEOUT_DEFAULT * SEC_TO_MS;
 }
 
 void NTPtime::printDateTime(strDateTime _dateTime) {
@@ -142,7 +142,7 @@ strDateTime NTPtime::ConvertUnixTimestamp( unsigned long _tempTimeStamp) {
 boolean NTPtime::summerTime(unsigned long _timeStamp ) {
 
 	strDateTime  _tempDateTime;
-	_tempDateTime = ConvertUnixTimestamp(_timeStamp);
+	_tempDateTime = this->ConvertUnixTimestamp(_timeStamp);
 	// printTime("Innerhalb ", _tempDateTime);
 
 	if (_tempDateTime.month < 3 || _tempDateTime.month > 10) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
@@ -156,7 +156,7 @@ boolean NTPtime::summerTime(unsigned long _timeStamp ) {
 boolean NTPtime::daylightSavingTime(unsigned long _timeStamp) {
 
 	strDateTime  _tempDateTime;
-	_tempDateTime = ConvertUnixTimestamp(_timeStamp);
+	_tempDateTime = this->ConvertUnixTimestamp(_timeStamp);
 
 	// here the US code
 	//return false;
@@ -206,9 +206,9 @@ boolean NTPtime::daylightSavingTime(unsigned long _timeStamp) {
 
 unsigned long NTPtime::adjustTimeZone(unsigned long _timeStamp, float _timeZone, int _DayLightSaving) {
 	
-	if (_DayLightSaving ==1 && summerTime(_timeStamp)) _timeStamp += 3600; // European Summer time
+	if (_DayLightSaving ==1 && this->summerTime(_timeStamp)) _timeStamp += 3600; // European Summer time
 	_timeStamp += (unsigned long)(_timeZone *  3600.0); // adjust timezone
-	if (_DayLightSaving ==2 && daylightSavingTime(_timeStamp)) _timeStamp += 3600; // US daylight time
+	if (_DayLightSaving ==2 && this->daylightSavingTime(_timeStamp)) _timeStamp += 3600; // US daylight time
 	return _timeStamp;
 }
 
@@ -223,17 +223,17 @@ strDateTime NTPtime::getNTPtime(float _timeZone, int _DayLightSaving) {
 	_dateTime.valid = false;
 	unsigned long _currentTimeStamp;
 
-	if (_sendPhase) {
-		if (_sentTime && ((millis() - _sentTime) < _sendInterval)) {
+	if (this->_sendPhase) {
+		if (this->_sentTime && ((millis() - this->_sentTime) < this->_sendInterval)) {
 			return _dateTime;
 		}
 
-		_sendPhase = false;
-		UDPNTPClient.begin(1337); // Port for NTP receive
+		this->_sendPhase = false;
+		this->UDPNTPClient.begin(1337); // Port for NTP receive
 
 #ifdef DEBUG_ON
 		IPAddress _timeServerIP;
-		WiFi.hostByName(_NTPserver.c_str(), _timeServerIP);
+		WiFi.hostByName(this->_NTPserver.c_str(), _timeServerIP);
 		Serial.println();
 		Serial.println(_timeServerIP);
 		Serial.println("Sending NTP packet");
@@ -248,17 +248,17 @@ strDateTime NTPtime::getNTPtime(float _timeZone, int _DayLightSaving) {
 		_packetBuffer[13] = 0x4E;
 		_packetBuffer[14] = 49;
 		_packetBuffer[15] = 52;
-		UDPNTPClient.beginPacket(_NTPserver.c_str(), 123);
-		UDPNTPClient.write(_packetBuffer, NTP_PACKET_SIZE);
-		UDPNTPClient.endPacket();
+		this->UDPNTPClient.beginPacket(this->_NTPserver.c_str(), 123);
+		this->UDPNTPClient.write(_packetBuffer, NTP_PACKET_SIZE);
+		this->UDPNTPClient.endPacket();
 
-		_sentTime = millis();
+		this->_sentTime = millis();
 	} else {
-		cb = UDPNTPClient.parsePacket();
+		cb = this->UDPNTPClient.parsePacket();
 		if (cb == 0) {
-			if ((millis() - _sentTime) > _recvTimeout) {
-				_sendPhase = true;
-				_sentTime = 0;
+			if ((millis() - this->_sentTime) > this->_recvTimeout) {
+				this->_sendPhase = true;
+				this->_sentTime = 0;
 			}
 		} else {
 #ifdef DEBUG_ON
@@ -266,20 +266,20 @@ strDateTime NTPtime::getNTPtime(float _timeZone, int _DayLightSaving) {
 			Serial.println(cb);
 #endif
 
-			UDPNTPClient.read(_packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
+			this->UDPNTPClient.read(_packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
 			unsigned long highWord = word(_packetBuffer[40], _packetBuffer[41]);
 			unsigned long lowWord = word(_packetBuffer[42], _packetBuffer[43]);
 			unsigned long secsSince1900 = highWord << 16 | lowWord;
 			const unsigned long seventyYears = 2208988800UL;
 			_unixTime = secsSince1900 - seventyYears;
 			if (secsSince1900 > 0) {
-				_currentTimeStamp = adjustTimeZone(_unixTime, _timeZone, _DayLightSaving);
-				_dateTime = ConvertUnixTimestamp(_currentTimeStamp);
+				_currentTimeStamp = this->adjustTimeZone(_unixTime, _timeZone, _DayLightSaving);
+				_dateTime = this->ConvertUnixTimestamp(_currentTimeStamp);
 				_dateTime.valid = true;
 			} else
 			_dateTime.valid = false;
 
-			_sendPhase = true;
+			this->_sendPhase = true;
 		}
 	}
 
