@@ -50,10 +50,10 @@ void UpdateWeatherDisplay(strWeatherInfo &weather, strDateTime &dTime)
 
 	display.setFont(&FreeSans9pt7b);
 	display.setTextColor(GxEPD_RED);
-	display.setCursor(6, 12);
+	display.setCursor(6, 1);
 	display.print(formatted_date);
 
-	display.setCursor(6, 115);
+	display.setCursor(6, 112);
 	display.print(formatted_time);
 
 	//display.display();

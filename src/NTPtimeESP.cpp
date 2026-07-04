@@ -276,12 +276,13 @@ strDateTime NTPtime::getNTPtime(float _timeZone, int _DayLightSaving) {
 				_currentTimeStamp = this->adjustTimeZone(_unixTime, _timeZone, _DayLightSaving);
 				_dateTime = this->ConvertUnixTimestamp(_currentTimeStamp);
 				_dateTime.valid = true;
-			} else
-			_dateTime.valid = false;
-
-			this->_sendPhase = true;
+			} else {
+				_dateTime.valid = false;
+				this->_sendPhase = true;
+			}
 		}
 	}
+
 
 	return _dateTime;
 }
